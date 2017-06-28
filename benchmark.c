@@ -52,16 +52,43 @@ static void *task_run(void *data __attribute__ ((__unused__)))
     pthread_exit(NULL);
 }
 
+void usage()
+{
+    printf("\nUsage: ./benchmark [OPTIONS].\n");
+    printf("\nOptions:\n    -t    task number\n    -n    thread number\n    -c    iteration time\n    -s    size of malloc\n\n");
+}
+
 int main(int argc, char *argv[])
 {
-    int i;
+    int args;
     int task_num = TASK_NUM;
     int thread_num = THREAD_NUM;
-    double duration;
-
     arg *the_arg = (arg *) malloc(sizeof(arg));
     the_arg->count = COUNT;
     the_arg->size = SIZE;
+
+    while (-1 != (args = getopt(argc, argv, "ht:n:c:s:"))) {
+        switch (args) {
+        case 'h':
+            usage();
+            return -1;
+        case 't':
+            task_num = atoi(optarg);
+            break;
+        case 'n':
+            thread_num = atoi(optarg);
+            break;
+        case 'c':
+            the_arg->count = atoi(optarg);
+            break;
+        case 's':
+            the_arg->size = atoi(optarg);
+            break;
+        }
+    }
+
+    int i;
+    double duration;
 
     pool = (tpool_t *) malloc(sizeof(tpool_t));
     tpool_init(pool, thread_num, task_run);
