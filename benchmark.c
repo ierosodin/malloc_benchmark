@@ -12,12 +12,12 @@
 #define TASK_NUM	16
 #define THREAD_NUM	8
 #define SIZE		10000
-#define COUNT		10000
+#define ITER		10000
 
 struct timeval start, end;
 
 typedef struct {
-    int count;
+    int iter;
     unsigned long size;
 } arg;
 
@@ -26,11 +26,11 @@ static tpool_t *pool = NULL;
 void allocate(void *data){
     arg *p = (arg *) data;
     int i;
-    int **m = (int **)malloc(p->count * sizeof(void *));
+    int **m = (int **)malloc(p->iter * sizeof(void *));
 
-    for (i = 0; i < p->count; i++)
+    for (i = 0; i < p->iter; i++)
         m[i] = (int *)malloc(p->size);
-    for (i = 0; i < p->count; i++)
+    for (i = 0; i < p->iter; i++)
         free(m[i]);
     free(m);
 }
@@ -55,7 +55,7 @@ static void *task_run(void *data __attribute__ ((__unused__)))
 void usage()
 {
     printf("\nUsage: ./benchmark [OPTIONS].\n");
-    printf("\nOptions:\n    -t    task number\n    -n    thread number\n    -c    iteration time\n    -s    size of malloc\n\n");
+    printf("\nOptions:\n    -t    task number\n    -n    thread number\n    -i    iteration time\n    -s    size of malloc\n\n");
 }
 
 int main(int argc, char *argv[])
@@ -64,10 +64,10 @@ int main(int argc, char *argv[])
     int task_num = TASK_NUM;
     int thread_num = THREAD_NUM;
     arg *the_arg = (arg *) malloc(sizeof(arg));
-    the_arg->count = COUNT;
+    the_arg->iter = ITER;
     the_arg->size = SIZE;
 
-    while (-1 != (args = getopt(argc, argv, "ht:n:c:s:"))) {
+    while (-1 != (args = getopt(argc, argv, "ht:n:i:s:"))) {
         switch (args) {
         case 'h':
             usage();
@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
         case 'n':
             thread_num = atoi(optarg);
             break;
-        case 'c':
-            the_arg->count = atoi(optarg);
+        case 'i':
+            the_arg->iter = atoi(optarg);
             break;
         case 's':
             the_arg->size = atoi(optarg);
